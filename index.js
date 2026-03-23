@@ -1,5 +1,15 @@
-const { Client, GatewayIntentBits, Collection, EmbedBuilder, ChannelType } = require('discord.js');
-const { sayCommand } = require('./commands.js');
+const http = require('http');
+const { Client, GatewayIntentBits, Collection, EmbedBuilder, ChannelType, SlashCommandBuilder } = require('discord.js');
+
+// Minimal HTTP server for Render/UptimeRobot (responds OK on any path)
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('OK');
+});
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`HTTP server running on port ${PORT}`);
+});
 
 // Config
 const GUILD_ID = '1369744973783765063';
@@ -25,6 +35,23 @@ const client = new Client({
 });
 
 client.commands = new Collection();
+
+// sayCommand inline (from commands.js)
+const sayCommand = new SlashCommandBuilder()
+  .setName('say')
+  .setDescription('Say a message as the bot')
+  .addStringOption(option =>
+    option.setName('content')
+      .setDescription('Message content')
+      .setRequired(true))
+  .addChannelOption(option =>
+    option.setName('channel')
+      .setDescription('Channel to send in (default: current)')
+      .setRequired(false))
+  .addStringOption(option =>
+    option.setName('reply_to')
+      .setDescription('Message ID to reply to (optional)')
+      .setRequired(false));
 
 // Ordinal suffix helper
 function getOrdinal(n) {
@@ -80,7 +107,7 @@ async function updateMemberCount() {
   }
 }
 
-client.once('clientReady', async () => {
+client.once('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setActivity(STATUS_TEXT, { type: 'WATCHING' });
 
@@ -130,7 +157,7 @@ client.on('interactionCreate', async interaction => {
   if (interaction.commandName === 'say') {
     const member = interaction.member;
     if (!ALLOWED_SAY_ROLES.some(roleId => member.roles.cache.has(roleId))) {
-      return interaction.reply({ content: '❌ You need Board of Executives or Ownership Team role.', flags: 64 });
+      return interaction.reply({ content: '❌ You need Board of Executives or Ownership Team role.', ephemeral: true });
     }
 
     const content = interaction.options.getString('content');
@@ -138,7 +165,7 @@ client.on('interactionCreate', async interaction => {
     const replyToId = interaction.options.getString('reply_to');
 
     if (targetChannel.type !== ChannelType.GuildText) {
-      return interaction.reply({ content: '❌ Invalid channel.', flags: 64 });
+      return interaction.reply({ content: '❌ Invalid channel.', ephemeral: true });
     }
 
     // Log
@@ -152,15 +179,15 @@ client.on('interactionCreate', async interaction => {
         if (replyTo) {
           message = await targetChannel.send({ content, reply: { messageReference: replyTo.id } });
         } else {
-          return interaction.reply({ content: '❌ Invalid reply message ID.', flags: 64 });
+          return interaction.reply({ content: '❌ Invalid reply message ID.', ephemeral: true });
         }
       } else {
         message = await targetChannel.send(content);
       }
-      await interaction.reply({ content: `✅ Sent: [Jump](${message.url})`, flags: 64 });
+      await interaction.reply({ content: `✅ Sent: [Jump](${message.url})`, ephemeral: true });
     } catch (error) {
       console.error(error);
-      await interaction.reply({ content: '❌ Failed to send message.', flags: 64 });
+      await interaction.reply({ content: '❌ Failed to send message.', ephemeral: true });
     }
     return;
   }
@@ -171,7 +198,7 @@ client.on('interactionCreate', async interaction => {
       await command.execute(interaction);
     } catch (error) {
       console.error(error);
-      await interaction.reply({ content: 'There was an error while executing this command!', flags: 64 });
+      await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
     }
   }
 });
