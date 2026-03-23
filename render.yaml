@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: msrp-systems
+    env: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: node index.js
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+    autoDeploy: true
+
