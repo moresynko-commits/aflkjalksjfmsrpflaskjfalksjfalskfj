@@ -56,7 +56,7 @@ function updateMemberCount() {
   }
 }
 
-client.once('ready', async () => {
+client.once('clientReady', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setActivity(STATUS_TEXT, { type: 'WATCHING' });
 
@@ -97,7 +97,7 @@ client.on('interactionCreate', async interaction => {
 
   if (interaction.commandName === 'say') {
     if (!ALLOWED_SAY_USERS.includes(interaction.user.id)) {
-      return interaction.reply({ content: '❌ Unauthorized.', ephemeral: true });
+      return interaction.reply({ content: '❌ Unauthorized.', flags: 64 });
     }
 
     const content = interaction.options.getString('content');
@@ -105,7 +105,7 @@ client.on('interactionCreate', async interaction => {
     const replyToId = interaction.options.getString('reply_to');
 
     if (targetChannel.type !== ChannelType.GuildText) {
-      return interaction.reply({ content: '❌ Invalid channel.', ephemeral: true });
+      return interaction.reply({ content: '❌ Invalid channel.', flags: 64 });
     }
 
     try {
@@ -115,15 +115,15 @@ client.on('interactionCreate', async interaction => {
         if (replyTo) {
           message = await targetChannel.send({ content, reply: { messageReference: replyTo.id } });
         } else {
-          return interaction.reply({ content: '❌ Invalid reply message ID.', ephemeral: true });
+          return interaction.reply({ content: '❌ Invalid reply message ID.', flags: 64 });
         }
       } else {
         message = await targetChannel.send(content);
       }
-      await interaction.reply({ content: `✅ Sent: [Jump](${message.url})`, ephemeral: true });
+      await interaction.reply({ content: `✅ Sent: [Jump](${message.url})`, flags: 64 });
     } catch (error) {
       console.error(error);
-      await interaction.reply({ content: '❌ Failed to send message.', ephemeral: true });
+      await interaction.reply({ content: '❌ Failed to send message.', flags: 64 });
     }
     return;
   }
@@ -134,7 +134,7 @@ client.on('interactionCreate', async interaction => {
       await command.execute(interaction);
     } catch (error) {
       console.error(error);
-      await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+      await interaction.reply({ content: 'There was an error while executing this command!', flags: 64 });
     }
   }
 });
