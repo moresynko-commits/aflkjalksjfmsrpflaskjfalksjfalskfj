@@ -4,7 +4,7 @@
   "description": "MSRP Systems Discord Bot for Michigan State Roleplay",
   "main": "index.js",
   "scripts": {
-"start": "node server.js",
+    "start": "node index.js",
     "dev": "node --watch index.js"
   },
   "dependencies": {
