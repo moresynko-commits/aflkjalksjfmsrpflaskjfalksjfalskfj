@@ -1,0 +1,18 @@
+{
+  "name": "msrp-systems",
+  "version": "1.0.0",
+  "description": "MSRP Systems Discord Bot for Michigan State Roleplay",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.15.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "author": "BLACKBOXAI",
+  "license": "MIT"
+}
